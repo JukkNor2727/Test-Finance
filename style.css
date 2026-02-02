@@ -297,3 +297,19 @@ th{
     justify-content:flex-start;
   }
 }
+/* ===== Make it feel like an app: ปิดการลากคลุมข้อความใน UI ===== */
+.topbar, .container, .card, button, .btn, .pill, .badge, table, th, td, h1, h2, h3, p, span, label, summary {
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* แต่อนุญาตให้เลือก/คัดลอกในช่องกรอกได้ */
+input, textarea, select {
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+/* กันอาการกดค้างแล้วมี highlight แปลกๆ บนมือถือ */
+button, .btn {
+  -webkit-tap-highlight-color: transparent;
+}
