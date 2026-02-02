@@ -1,88 +1,150 @@
-<script type="module">
-  // 1) Firebase core
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js";
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Finance Tracker (Online)</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
 
-  // 2) Auth
-  import {
-    getAuth,
-    onAuthStateChanged,
-    signInWithEmailAndPassword,
-    createUserWithEmailAndPassword,
-    signOut
-  } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js";
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <div class="dot"></div>
+      <div>
+        <div class="title">Finance Tracker</div>
+        <div class="subtitle">Online + Cloud</div>
+      </div>
+    </div>
 
-  // 3) Firestore
-  import {
-    getFirestore,
-    collection,
-    addDoc,
-    query,
-    where,
-    orderBy,
-    onSnapshot,
-    serverTimestamp
-  } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js";
+    <div class="userbox">
+      <span id="userEmail" class="muted">ยังไม่ได้ล็อกอิน</span>
+      <button id="btnSignOut" class="btn ghost" disabled>ออกจากระบบ</button>
+    </div>
+  </header>
 
-  // TODO: ใส่ของดาฟจาก Firebase console
-  const firebaseConfig = {
-    apiKey: "YOUR_API_KEY",
-    authDomain: "YOUR_PROJECT.firebaseapp.com",
-    projectId: "YOUR_PROJECT_ID",
-  };
+  <main class="container">
+    <!-- AUTH -->
+    <section class="card" id="authCard">
+      <h2>เข้าสู่ระบบ / สมัครสมาชิก</h2>
+      <p class="muted">ข้อมูลจะถูกเก็บแยกตามบัญชีของแต่ละคน</p>
 
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const db = getFirestore(app);
+      <div class="grid2">
+        <label class="field">
+          <span>Email</span>
+          <input id="email" type="email" placeholder="you@example.com" autocomplete="email" />
+        </label>
 
-  // ------- ตัวอย่าง: โครงสร้างข้อมูลรายรับ/รายจ่าย -------
-  // collection: transactions
-  // fields: uid, type("income"/"expense"), amount, note, dateKey("2026-02"), createdAt
+        <label class="field">
+          <span>Password</span>
+          <input id="password" type="password" placeholder="อย่างน้อย 6 ตัว" autocomplete="current-password" />
+        </label>
+      </div>
 
-  async function addTransaction({ type, amount, note, dateKey }) {
-    const user = auth.currentUser;
-    if (!user) throw new Error("Not signed in");
+      <div class="row">
+        <button id="btnSignIn" class="btn primary">เข้าสู่ระบบ</button>
+        <button id="btnSignUp" class="btn">สมัครสมาชิก</button>
+        <span id="authMsg" class="msg"></span>
+      </div>
 
-    await addDoc(collection(db, "transactions"), {
-      uid: user.uid,
-      type,
-      amount: Number(amount),
-      note: note || "",
-      dateKey,
-      createdAt: serverTimestamp()
-    });
-  }
+      <details class="hint">
+        <summary>ตั้งค่า Firebase ยังไง?</summary>
+        <ol>
+          <li>สร้างโปรเจกต์ที่ <span class="kbd">Firebase Console</span></li>
+          <li>เปิด <span class="kbd">Authentication → Email/Password</span></li>
+          <li>สร้าง Firestore database</li>
+          <li>เอา config มาใส่ใน <span class="kbd">app.js</span></li>
+        </ol>
+      </details>
+    </section>
 
-  function listenTransactions(dateKey, renderFn) {
-    const user = auth.currentUser;
-    if (!user) return;
+    <!-- APP -->
+    <section class="card hidden" id="appCard">
+      <div class="toolbar">
+        <div class="picker">
+          <label class="field">
+            <span>ปี</span>
+            <select id="yearSelect"></select>
+          </label>
+          <label class="field">
+            <span>เดือน</span>
+            <select id="monthSelect"></select>
+          </label>
+        </div>
 
-    const q = query(
-      collection(db, "transactions"),
-      where("uid", "==", user.uid),
-      where("dateKey", "==", dateKey),
-      orderBy("createdAt", "desc")
-    );
+        <div class="summary">
+          <div class="pill">
+            <div class="pillLabel">รายรับรวม</div>
+            <div class="pillValue" id="sumIncome">0</div>
+          </div>
+          <div class="pill">
+            <div class="pillLabel">รายจ่ายรวม</div>
+            <div class="pillValue" id="sumExpense">0</div>
+          </div>
+          <div class="pill">
+            <div class="pillLabel">คงเหลือ</div>
+            <div class="pillValue" id="sumNet">0</div>
+          </div>
+        </div>
+      </div>
 
-    return onSnapshot(q, (snap) => {
-      const rows = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-      renderFn(rows);
-    });
-  }
+      <hr class="sep" />
 
-  // ------- ตัวอย่างการล็อกอินง่าย ๆ (เอาไปผูกกับปุ่มในหน้าเว็บ) -------
-  window.__auth = {
-    signUp: (email, pass) => createUserWithEmailAndPassword(auth, email, pass),
-    signIn: (email, pass) => signInWithEmailAndPassword(auth, email, pass),
-    signOut: () => signOut(auth),
-  };
+      <h2>เพิ่มรายการ</h2>
+      <div class="grid3">
+        <label class="field">
+          <span>ประเภท</span>
+          <select id="type">
+            <option value="income">รายรับ</option>
+            <option value="expense">รายจ่าย</option>
+          </select>
+        </label>
 
-  onAuthStateChanged(auth, (user) => {
-    console.log("auth state:", user ? "signed in" : "signed out");
-    // ตรงนี้ค่อยเรียก listenTransactions ตามเดือนที่เลือก
-  });
+        <label class="field">
+          <span>จำนวนเงิน</span>
+          <input id="amount" type="number" inputmode="numeric" placeholder="เช่น 1500" />
+        </label>
 
-  // expose ให้เรียกทดสอบใน console ได้
-  window.__addTransaction = addTransaction;
-  window.__listenTransactions = listenTransactions;
-</script>
+        <label class="field">
+          <span>หมายเหตุ</span>
+          <input id="note" type="text" placeholder="เช่น ค่าอาหาร, เงินเดือน" />
+        </label>
+      </div>
 
+      <div class="row">
+        <button id="btnAdd" class="btn primary">บันทึก</button>
+        <span id="appMsg" class="msg"></span>
+      </div>
+
+      <hr class="sep" />
+
+      <h2>รายการของเดือนนี้</h2>
+      <div class="tableWrap">
+        <table>
+          <thead>
+            <tr>
+              <th>เวลา</th>
+              <th>ประเภท</th>
+              <th class="right">จำนวนเงิน</th>
+              <th>หมายเหตุ</th>
+              <th class="right">ลบ</th>
+            </tr>
+          </thead>
+          <tbody id="rows"></tbody>
+        </table>
+      </div>
+
+      <p class="muted small">
+        * ข้อมูลอัปเดตแบบ realtime จาก Firestore<br/>
+        * ถ้าต้องการ export CSV/JSON เดี๋ยวเพิ่มให้ได้
+      </p>
+    </section>
+
+    <footer class="footer muted">
+      โฮสต์ด้วย :contentReference[oaicite:0]{index=0} + เก็บข้อมูลด้วย :contentReference[oaicite:1]{index=1}
+    </footer>
+  </main>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>
