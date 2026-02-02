@@ -1,6 +1,8 @@
 :root{
-  --bg:#0b0f17;
+  --bg: #0b0f17;
+  --bg2:#0b1222;
   --card:#121a28;
+  --card2:#0f1626;
   --text:#e8eefc;
   --muted:#9fb0d0;
   --line:#22304a;
@@ -9,7 +11,23 @@
   --good:#2ad19f;
   --bad:#ff6b6b;
   --warn:#ffd166;
+  --shadow: 0 12px 50px rgba(0,0,0,.35);
 }
+
+/* ธีมขาว */
+html[data-theme="light"]{
+  --bg:#f5f7fb;
+  --bg2:#ffffff;
+  --card:#ffffff;
+  --card2:#f6f8ff;
+  --text:#0b1020;
+  --muted:#52617a;
+  --line:#d8e0f0;
+  --btn:#eef2ff;
+  --btn2:#ffffff;
+  --shadow: 0 10px 30px rgba(10,20,40,.10);
+}
+
 
 *{box-sizing:border-box}
 body{
