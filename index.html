@@ -1,1 +1,88 @@
+<script type="module">
+  // 1) Firebase core
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js";
+
+  // 2) Auth
+  import {
+    getAuth,
+    onAuthStateChanged,
+    signInWithEmailAndPassword,
+    createUserWithEmailAndPassword,
+    signOut
+  } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js";
+
+  // 3) Firestore
+  import {
+    getFirestore,
+    collection,
+    addDoc,
+    query,
+    where,
+    orderBy,
+    onSnapshot,
+    serverTimestamp
+  } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js";
+
+  // TODO: ใส่ของดาฟจาก Firebase console
+  const firebaseConfig = {
+    apiKey: "YOUR_API_KEY",
+    authDomain: "YOUR_PROJECT.firebaseapp.com",
+    projectId: "YOUR_PROJECT_ID",
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  // ------- ตัวอย่าง: โครงสร้างข้อมูลรายรับ/รายจ่าย -------
+  // collection: transactions
+  // fields: uid, type("income"/"expense"), amount, note, dateKey("2026-02"), createdAt
+
+  async function addTransaction({ type, amount, note, dateKey }) {
+    const user = auth.currentUser;
+    if (!user) throw new Error("Not signed in");
+
+    await addDoc(collection(db, "transactions"), {
+      uid: user.uid,
+      type,
+      amount: Number(amount),
+      note: note || "",
+      dateKey,
+      createdAt: serverTimestamp()
+    });
+  }
+
+  function listenTransactions(dateKey, renderFn) {
+    const user = auth.currentUser;
+    if (!user) return;
+
+    const q = query(
+      collection(db, "transactions"),
+      where("uid", "==", user.uid),
+      where("dateKey", "==", dateKey),
+      orderBy("createdAt", "desc")
+    );
+
+    return onSnapshot(q, (snap) => {
+      const rows = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      renderFn(rows);
+    });
+  }
+
+  // ------- ตัวอย่างการล็อกอินง่าย ๆ (เอาไปผูกกับปุ่มในหน้าเว็บ) -------
+  window.__auth = {
+    signUp: (email, pass) => createUserWithEmailAndPassword(auth, email, pass),
+    signIn: (email, pass) => signInWithEmailAndPassword(auth, email, pass),
+    signOut: () => signOut(auth),
+  };
+
+  onAuthStateChanged(auth, (user) => {
+    console.log("auth state:", user ? "signed in" : "signed out");
+    // ตรงนี้ค่อยเรียก listenTransactions ตามเดือนที่เลือก
+  });
+
+  // expose ให้เรียกทดสอบใน console ได้
+  window.__addTransaction = addTransaction;
+  window.__listenTransactions = listenTransactions;
+</script>
 
