@@ -18,9 +18,10 @@
     </div>
 
     <div class="userbox">
-      <span id="userEmail" class="muted">ยังไม่ได้ล็อกอิน</span>
-      <button id="btnSignOut" class="btn ghost" disabled>ออกจากระบบ</button>
-    </div>
+  <button id="btnTheme" class="btn ghost" title="สลับธีม">🌙/☀️</button>
+  <span id="userEmail" class="muted">ยังไม่ได้ล็อกอิน</span>
+  <button id="btnSignOut" class="btn ghost" disabled>ออกจากระบบ</button>
+</div>
   </header>
 
   <main class="container">
@@ -89,6 +90,24 @@
       </div>
 
       <hr class="sep" />
+<section class="card charts">
+  <div class="chartsHead">
+    <h2 class="m0">ภาพรวม</h2>
+    <p class="muted small m0">สรุปรายเดือน + รายปี (อัปเดตตามข้อมูลจริง)</p>
+  </div>
+
+  <div class="chartGrid">
+    <div class="chartBox">
+      <div class="chartTitle">สรุปเดือนนี้ (รายรับ/รายจ่าย)</div>
+      <canvas id="chartMonthly" height="180"></canvas>
+    </div>
+
+    <div class="chartBox">
+      <div class="chartTitle">สรุปรายปี (ต่อเดือน)</div>
+      <canvas id="chartYearly" height="180"></canvas>
+    </div>
+  </div>
+</section>
 
       <h2>เพิ่มรายการ</h2>
       <div class="grid3">
@@ -141,7 +160,7 @@
     </section>
 
     <footer class="footer muted">
-      โฮสต์ด้วย :contentReference[oaicite:0]{index=0} + เก็บข้อมูลด้วย :contentReference[oaicite:1]{index=1}
+      
     </footer>
   </main>
 
