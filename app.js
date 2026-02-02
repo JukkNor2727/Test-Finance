@@ -27,10 +27,13 @@ import {
  *  1) ใส่ Firebase config ตรงนี้
  *  ========================= */
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT.firebaseapp.com",
-  projectId: "YOUR_PROJECT_ID",
-  // (optional) storageBucket, messagingSenderId, appId
+  apiKey: "AIzaSyAoJS6llVedP5rHAFQ21MXWyJxjj3kR6s4",
+  authDomain: "next-a1e7c.firebaseapp.com",
+  projectId: "next-a1e7c",
+  storageBucket: "next-a1e7c.firebasestorage.app",
+  messagingSenderId: "116648966704",
+  appId: "1:116648966704:web:893c2b97af4e5959be0bf5",
+  measurementId: "G-4E2CXWC7SK"
 };
 
 // Init
